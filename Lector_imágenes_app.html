@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de instrumentos de inmersión comunitaria</title>
+    <style>
+        :root {
+            --primary-color: #39A900; /* Verde institucional SENA */
+            --primary-dark: #2a7e00;
+            --secondary-color: #00324D;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 24px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #adb5bd;
+            font-size: 0.95rem;
+        }
+
+        /* Sistema de Pestañas */
+        .tabs-nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tarjetas y Paneles */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            color: var(--secondary-color);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Formularios y Controles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .help-text {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .security-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 12px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        /* Vista Previa de Imagen */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            padding: 20px;
+            text-align: center;
+            border-radius: var(--radius);
+            background: #fafafa;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: #f4f9f0;
+        }
+
+        #imagePreviewContainer {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        /* Botones */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #002235;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Indicador de Estado y Spinner */
+        #statusMessage {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-info { background-color: #cce5ff; color: #004085; border: 1px solid #b8daff; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Secciones de Resultados */
+        .result-section {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .sub-section {
+            margin-bottom: 20px;
+        }
+
+        .sub-section h3 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Tabla de Priorización */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f3f5;
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-sena {
+            background-color: #e2f0d9;
+            color: #276504;
+            border: 1px solid #b7e1cd;
+        }
+
+        .badge-articulation {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        /* Tutorial / Prompt Tab */
+        .tutorial-step {
+            margin-bottom: 20px;
+        }
+
+        .tutorial-step h4 {
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        code.inline-code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        .drive-link-box {
+            background: #e8f4fd;
+            border: 1px solid #bce8f1;
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Analizador de instrumentos de inmersión comunitaria</h1>
+        <p>Herramienta web interactiva para lectura descriptiva, interpretación multimodal y priorización de acciones comunitarias (Pertinencia SENA / Articulación).</p>
+    </header>
+
+    <!-- Navegación por pestañas -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('demo')">01 · Demostración</button>
+        <button class="tab-btn" onclick="switchTab('tutorial')">02 · Prompt (Tutorial)</button>
+    </div>
+
+    <!-- PESTAÑA 01: DEMOSTRACIÓN -->
+    <div id="tab-demo" class="tab-content active">
+        
+        <!-- Enlace de imágenes de ejemplo -->
+        <div class="drive-link-box">
+            <div>
+                <strong>¿Necesitas imágenes de prueba?</strong> Explora la carpeta oficial con instrumentos de inmersión comunitaria (Metaplan, cartografías, mapas de empatía).
+            </div>
+            <a href="https://drive.google.com/drive/u/0/folders/1_iwAMe23HMiq4xmKCdcvNmaUvmCfrsoe" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 14px;">
+                📂 Abrir Carpeta en Google Drive
+            </a>
+        </div>
+
+        <div class="grid-2">
+            <!-- Columna Izquierda: Controles y Carga -->
+            <div class="card">
+                <h2>Configuración y Entrada</h2>
+                
+                <div class="form-group">
+                    <label for="modeSelect">Modo de Operación</label>
+                    <select id="modeSelect" onchange="toggleApiInput()">
+                        <option value="simulation">Simulación (Datos ficticios seguros)</option>
+                        <option value="real">Consulta Real (API de OpenAI)</option>
+                    </select>
+                    <div class="help-text">La simulación genera resultados de ejemplo estables sin requerir claves ni conexión.</div>
+                </div>
+
+                <div id="apiKeyGroup" class="form-group" style="display: none;">
+                    <label for="apiKeyInput">Clave de API de OpenAI (API Key)</label>
+                    <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+                    <div class="security-warning">
+                        ⚠️ <strong>Advertencia de Seguridad:</strong> Nunca guardamos tu clave en cookies, almacenamiento local ni archivos. Al ingresarla en el navegador, esta es vulnerable a inspección de red o scripts en la página. Para entornos productivos, se requiere un backend seguro que custodie el secreto. No pegues credenciales en chats con LLM.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen del Instrumento Comunitario (PNG, JPG, WebP)</label>
+                    <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                        <p id="uploadLabel">📄 Haz clic aquí o arrastra una imagen del instrumento</p>
+                        <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp" style="display: none;" onchange="handleImagePreview(event)">
+                    </div>
+                    <div id="imagePreviewContainer">
+                        <img id="imagePreview" alt="Vista previa del instrumento analizado">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contextInput">Contexto Comunitario (Opcional)</label>
+                    <textarea id="contextInput" placeholder="Describa brevemente la comunidad, territorio o enfoque del diagnóstico territorial (ej. Vereda rural, población joven, enfoque de economía popular)..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn" id="analyzeBtn" onclick="runAnalysis()">
+                        <span id="analyzeBtnText">Analizar Instrumento</span>
+                    </button>
+                    <button class="btn btn-outline" onclick="resetForm()">Reiniciar</button>
+                </div>
+
+                <div id="statusMessage"></div>
+            </div>
+
+            <!-- Columna Derecha: Salida / Resultados Estructurados -->
+            <div class="card" id="resultsCard">
+                <h2>Resultados del Análisis</h2>
+                <div id="initialPlaceholder" style="color: var(--text-muted); text-align: center; padding: 40px 20px;">
+                    Cargue una imagen y presione <strong>"Analizar Instrumento"</strong> para generar la lectura descriptiva, interpretación e identificación de acciones priorizadas.
+                </div>
+
+                <!-- Bloques de Resultados (Ocultos inicialmente) -->
+                <div id="analysisResults" class="result-section">
+                    
+                    <!-- 1. Lectura descriptiva -->
+                    <div class="sub-section">
+                        <h3>🔍 1 · Lectura descriptiva del instrumento</h3>
+                        <div id="descGeneral" class="card" style="background: #f8f9fa; margin-bottom: 12px; padding: 14px;"></div>
+                        <div id="descTipo" class="card" style="background: #f8f9fa; margin-bottom: 12px; padding: 14px;"></div>
+                        <div id="descPropositos" class="card" style="background: #f8f9fa; margin-bottom: 12px; padding: 14px;"></div>
+                    </div>
+
+                    <!-- 2. Interpretación de hallazgos -->
+                    <div class="sub-section">
+                        <h3>💡 2 · Interpretación de hallazgos y límites</h3>
+                        <div id="interpretacionContent" class="card" style="background: #f8f9fa; padding: 14px;"></div>
+                    </div>
+
+                    <!-- 3. Acciones emergentes y Matriz SENA -->
+                    <div class="sub-section">
+                        <h3>📋 3 · Acciones emergentes y matriz de priorización SENA</h3>
+                        <div class="btn-group" style="margin-bottom: 12px; margin-top: 0;">
+                            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 12px;" onclick="exportCSV()">Exportar CSV</button>
+                            <button class="btn btn-outline" style="font-size: 0.85rem; padding: 6px 12px;" onclick="copyMatrix()">Copiar Matriz</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="matrixTable">
+                                <thead>
+                                    <tr>
+                                        <th>Evidencia Observada</th>
+                                        <th>Acción Emergente</th>
+                                        <th>Clasificación</th>
+                                        <th>Ámbito / Entidad</th>
+                                        <th>Justificación</th>
+                                        <th>Pasos Sugeridos</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="matrixBody">
+                                    <!-- Dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 02: PROMPT (TUTORIAL) -->
+    <div id="tab-demo-tutorial" class="tab-content"></div>
+    <div id="tab-tutorial" class="tab-content">
+        <div class="card">
+            <h2>Tutorial y Estructura del Prompt Multimodal</h2>
+            <p style="margin-bottom: 16px;">
+                Esta herramienta implementa una arquitectura rigurosa para procesar instrumentos comunitarios garantizando trazabilidad metodológica, separación entre hechos observados e interpretación, y pertinencia institucional orientada al SENA.
+            </p>
+
+            <div class="tutorial-step">
+                <h4>Paso 1: Lectura Descriptiva Estricta</h4>
+                <p>El modelo analiza la imagen separando obligatoriamente la descripción visual pura (elementos, textos, relaciones) de la identificación tipológica (Metaplan, cartografía social, mapa de empatía, etc.) y de su función metodológica en inmersión comunitaria.</p>
+            </div>
+
+            <div class="tutorial-step">
+                <h4>Paso 2: Interpretación con Incertidumbres y Límites</h4>
+                <p>Se explicitan los márgenes de lectura, evitando la invención de testimonios, actores o datos cuantitativos no reflejados visualmente.</p>
+            </div>
+
+            <div class="tutorial-step">
+                <h4>Paso 3: Matriz de Priorización SENA vs. Articulación</h4>
+                <p>Clasifica las acciones emergentes según pertinencia institucional:</p>
+                <ul style="margin-left: 20px; margin-top: 6px; color: var(--text-muted);">
+                    <li><strong>Prioritaria SENA:</strong> Formación Profesional Integral, certificación de competencias laborales, emprendimiento, Agencia Pública de Empleo (APE) o investigación aplicada.</li>
+                    <li><strong>Importante / articulación:</strong> Competencias de otras entidades estatales u organizaciones (ej. infraestructura vial, alumbrado público, seguridad ciudadana).</li>
+                </ul>
+            </div>
+
+            <div class="tutorial-step">
+                <h4>Estructura del Prompt del Sistema (System Prompt) empleado en consultas reales:</h4>
+                <pre style="background: #212529; color: #f8f9fa; padding: 14px; border-radius: var(--radius); overflow-x: auto; font-size: 0.85rem; margin-top: 8px;"><code>Actúa como un experto metodólogo en inmersión comunitaria y desarrollo social. Analiza la imagen del instrumento comunitario provista y devuelve EXCLUSIVAMENTE un objeto JSON válido (sin formato Markdown adicional ni texto introductorio) con la siguiente estructura exacta:
+{
+  "lectura_descriptiva": {
+    "descripcion_general": "...",
+    "tipo_instrumento": "...",
+    "propositos_metodologicos": "..."
+  },
+  "interpretacion": "...",
+  "acciones": [
+    {
+      "evidencia_observada": "...",
+      "accion": "...",
+      "clasificacion": "Prioritaria SENA" | "Importante / articulación",
+      "ambito_misional": "...",
+      "justificacion": "...",
+      "pasos_sugeridos": "..."
+    }
+  ]
+}</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales para almacenar el estado actual del análisis
+    let currentAnalysisData = null;
+    let base64ImageString = null;
+
+    // Control de pestañas
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabId === 'demo') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('tab-demo').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('tab-tutorial').classList.add('active');
+        }
+    }
+
+    // Alternar visibilidad de API Key según el modo
+    function toggleApiInput() {
+        const mode = document.getElementById('modeSelect').value;
+        const apiKeyGroup = document.getElementById('apiKeyGroup');
+        apiKeyGroup.style.display = (mode === 'real') ? 'block' : 'none';
+    }
+
+    // Manejar vista previa de imagen y conversión a Base64
+    function handleImagePreview(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            base64ImageString = e.target.result;
+            const preview = document.getElementById('imagePreview');
+            preview.src = base64ImageString;
+            preview.style.display = 'block';
+            document.getElementById('uploadLabel').innerText = `Imagen cargada: ${file.name}`;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Mostrar mensajes de estado
+    function showStatus(message, type) {
+        const statusEl = document.getElementById('statusMessage');
+        statusEl.style.display = 'block';
+        statusEl.className = `alert-${type}`;
+        statusEl.innerText = message;
+    }
+
+    function clearStatus() {
+        const statusEl = document.getElementById('statusMessage');
+        statusEl.style.display = 'none';
+        statusEl.textContent = '';
+    }
+
+    // Reiniciar formulario
+    function resetForm() {
+        document.getElementById('imageInput').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('imagePreview').src = '';
+        document.getElementById('uploadLabel').innerText = '📄 Haz clic aquí o arrastra una imagen del instrumento';
+        document.getElementById('contextInput').value = '';
+        document.getElementById('apiKeyInput').value = '';
+        document.getElementById('initialPlaceholder').style.display = 'block';
+        document.getElementById('analysisResults').style.display = 'none';
+        currentAnalysisData = null;
+        clearStatus();
+    }
+
+    // Ejecutar análisis (Simulación o Real)
+    async function runAnalysis() {
+        const mode = document.getElementById('modeSelect').value;
+        const context = document.getElementById('contextInput').value.trim();
+        
+        if (!base64ImageString) {
+            showStatus('Por favor, cargue una imagen del instrumento antes de analizar.', 'danger');
+            return;
+        }
+
+        clearStatus();
+        const btnText = document.getElementById('analyzeBtnText');
+        btnText.innerHTML = '<span class="spinner"></span> Analizando instrumento...';
+        document.getElementById('analyzeBtn').disabled = true;
+
+        if (mode === 'simulation') {
+            // Simulación con retardo controlado
+            setTimeout(() => {
+                currentAnalysisData = getSimulatedData(context);
+                renderResults(currentAnalysisData, true);
+                btnText.innerText = 'Analizar Instrumento';
+                document.getElementById('analyzeBtn').disabled = false;
+                showStatus('Análisis de simulación completado correctamente.', 'success');
+            }, 1200);
+        } else {
+            // Modo Real con OpenAI API
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (!apiKey) {
+                showStatus('Por favor, ingrese su clave de API de OpenAI para el modo real.', 'danger');
+                btnText.innerText = 'Analizar Instrumento';
+                document.getElementById('analyzeBtn').disabled = false;
+                return;
+            }
+
+            try {
+                const result = await callOpenAIRealAPI(apiKey, base64ImageString, context);
+                currentAnalysisData = result;
+                renderResults(currentAnalysisData, false);
+                btnText.innerText = 'Analizar Instrumento';
+                document.getElementById('analyzeBtn').disabled = false;
+                showStatus('Análisis real completado con éxito a través de OpenAI.', 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus(`Error en la consulta real: ${error.message}`, 'danger');
+                btnText.innerText = 'Analizar Instrumento';
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+    }
+
+    // Datos ficticios estructurados para simulación
+    function getSimulatedData(context) {
+        return {
+            "lectura_descriptiva": {
+                "descripcion_general": "El instrumento visualizado corresponde a un panel de trabajo en cartulina con tarjetas autoadhesivas de colores (amarillo, verde y rosado) agrupadas en tres grandes columnas temáticas. Se observan títulos escritos a mano en marcador negro ('Problemas de empleo', 'Iniciativas productivas', 'Necesidades formativas') y líneas conectoras trazadas a pulso que relacionan la falta de oportunidades juveniles con el emprendimiento local. No se aprecian rostros ni nombres propios de personas específicas, preservando la confidencialidad.",
+                "tipo_instrumento": "Metaplan / Matriz de priorización participativa",
+                "propositos_metodologicos": "Su función metodológica en la inmersión comunitaria es propiciar la co-creación y jerarquización de problemáticas y potencialidades desde la voz directa de los actores locales, diferenciando percepciones individuales de consensos colectivos."
+            },
+            "interpretacion": "Los hallazgos reflejan una alta preocupación por la inserción laboral juvenil y la informalidad en emprendimientos agroartesanales. Sin embargo, existe incertidumbre sobre el alcance real de los mercados locales para absorber dichos emprendimientos, ya que el instrumento no contempla datos cuantitativos de ventas ni capacidad instalada actual. Los límites de lectura radican en que representa opiniones expresadas en un taller focal y no un censo demográfico exhaustivo.",
+            "acciones": [
+                {
+                    "evidencia_observada": "Tarjeta adhesiva: 'Los jóvenes no tienen certificación para trabajar en la agroindustria local'.",
+                    "accion": "Oferta de Programas de Formación Titulada y Certificación de Competencias Laborales (CCL)",
+                    "clasificacion": "Prioritaria SENA",
+                    "ambito_misional": "Formación Profesional Integral / Evaluadora de Competencias",
+                    "justificacion": "Corresponde directamente a la misión misional del SENA de certificar saberes y formar talento humano calificado acorde a las necesidades del sector productivo de la región.",
+                    "pasos_sugeridos": "1. Realizar mesa técnica con líderes comunitarios. 2. Ofertar evaluación de competencias en áreas agrícolas. 3. Abrir convocatoria especial de formación."
+                },
+                {
+                    "evidencia_observada": "Tarjeta adhesiva: 'Falta apoyo técnico para transformar el cacao y comercializar mejor'.",
+                    "accion": "Asesoría en emprendimiento, unidades productivas y escalamiento mediante Fondo Emprender",
+                    "clasificacion": "Prioritaria SENA",
+                    "ambito_misional": "Emprendimiento y Empresarismo (SENA Emprende Rural)",
+                    "justificacion": "Se alinea con el fomento al emprendimiento y la economía campesina/popular promovido por la estrategia institucional.",
+                    "pasos_sugeridos": "1. Conectar con gestor SER (SENA Emprende Rural). 2. Diseñar ruta de fortalecimiento empresarial. 3. Socializar requisitos para capital semilla."
+                },
+                {
+                    "evidencia_observada": "Tarjeta adhesiva: 'Las vías de acceso a la vereda están en mal estado y complican sacar la cosecha'.",
+                    "accion": "Gestión de mejoramiento vial rural e infraestructura de transporte",
+                    "clasificacion": "Importante / articulación",
+                    "ambito_misional": "Alcaldía Municipal / Secretaría de Infraestructura / Invías",
+                    "justificacion": "La intervención vial corresponde a competencias de entidades territoriales y de orden nacional, requiriendo articulación interinstitucional desde el SENA.",
+                    "pasos_sugeridos": "1. Consolidar el hallazgo en el informe de diagnóstico. 2. Presentar la necesidad en el comité municipal de desarrollo rural. 3. Articular mesas con la administración local."
+                }
+            ]
+        };
+    }
+
+    // Llamada Real a la API de OpenAI (GPT-4o con visión)
+    async function callOpenAIRealAPI(apiKey, base64Image, userContext) {
+        const prompt = `Actúa como un experto metodólogo en inmersión comunitaria y desarrollo social. Analiza la imagen del instrumento comunitario provista (Contexto adicional proporcionado por el usuario: "${userContext || 'Ninguno'}"). 
+Devuelve EXCLUSIVAMENTE un objeto JSON válido (sin formato Markdown adicional de bloques de código ni texto conversacional introductorio) con la siguiente estructura exacta:
+{
+  "lectura_descriptiva": {
+    "descripcion_general": "...",
+    "tipo_instrumento": "...",
+    "propositos_metodologicos": "..."
+  },
+  "interpretacion": "...",
+  "acciones": [
+    {
+      "evidencia_observada": "...",
+      "accion": "...",
+      "clasificacion": "Prioritaria SENA" o "Importante / articulación",
+      "ambito_misional": "...",
+      "justificacion": "...",
+      "pasos_sugeridos": "..."
+    }
+  ]
+}`;
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o",
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            { type: "text", text: prompt },
+                            { type: "image_url", image_url: { url: base64Image } }
+                        ]
+                    }
+                ],
+                max_tokens: 2000,
+                temperature: 0.2
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `Error HTTP ${response.status}: Fallo en la comunicación con OpenAI.`);
+        }
+
+        const data = await response.json();
+        const contentText = data.choices[0].message.content.trim();
+
+        // Limpiar posible formato markdown de bloque de código si el modelo lo incluye
+        let cleanJsonStr = contentText;
+        if (cleanJsonStr.startsWith('```json')) {
+            cleanJsonStr = cleanJsonStr.replace(/^```json/, '').replace(/```$/, '').trim();
+        } else if (cleanJsonStr.startsWith('```')) {
+            cleanJsonStr = cleanJsonStr.replace(/^```/, '').replace(/```$/, '').trim();
+        }
+
+        return JSON.parse(cleanJsonStr);
+    }
+
+    // Renderizar resultados en la interfaz
+    function renderResults(data, isSimulation) {
+        document.getElementById('initialPlaceholder').style.display = 'none';
+        document.getElementById('analysisResults').style.display = 'block';
+
+        if (isSimulation) {
+            // Añadir nota de simulación visual clara
+            document.getElementById('descGeneral').innerHTML = `<strong>[MODO SIMULACIÓN - DATOS FICTICIOS]</strong><br>` + data.lectura_descriptiva.descripcion_general;
+        } else {
+            document.getElementById('descGeneral').innerHTML = data.lectura_descriptiva.descripcion_general;
+        }
+
+        document.getElementById('descTipo').innerHTML = `<strong>Tipo de Instrumento:</strong> ${data.lectura_descriptiva.tipo_instrumento}`;
+        document.getElementById('descPropositos').innerHTML = `<strong>Propósito Metodológico:</strong> ${data.lectura_descriptiva.propositos_metodologicos}`;
+        
+        document.getElementById('interpretacionContent').innerHTML = data.interpretacion;
+
+        // Renderizar tabla de matriz
+        const tbody = document.getElementById('matrixBody');
+        tbody.innerHTML = '';
+
+        data.acciones.forEach(item => {
+            const tr = document.createElement('tr');
+            const badgeClass = (item.clasificacion === 'Prioritaria SENA') ? 'badge-sena' : 'badge-articulation';
+            
+            tr.innerHTML = `
+                <td>${escapeHtml(item.evidencia_observada)}</td>
+                <td><strong>${escapeHtml(item.accion)}</strong></td>
+                <td><span class="badge ${badgeClass}">${escapeHtml(item.clasificacion)}</span></td>
+                <td>${escapeHtml(item.ambito_misional)}</td>
+                <td>${escapeHtml(item.justificacion)}</td>
+                <td>${escapeHtml(item.pasos_sugeridos)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Utilidad de seguridad contra XSS básico en renderizado de textos
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#039;");
+    }
+
+    // Exportar tabla a CSV
+    function exportCSV() {
+        if (!currentAnalysisData || !currentAnalysisData.acciones) {
+            alert('No hay datos para exportar.');
+            return;
+        }
+
+        let csv = 'Evidencia Observada,Acción Emergente,Clasificación,Ámbito Misional o Entidad,Justificación,Pasos Sugeridos\n';
+        
+        currentAnalysisData.acciones.forEach(item => {
+            const row = [
+                `"${(item.evidencia_observada || '').replace(/"/g, '""')}"`,
+                `"${(item.accion || '').replace(/"/g, '""')}"`,
+                `"${(item.clasificacion || '').replace(/"/g, '""')}"`,
+                `"${(item.ambito_misional || '').replace(/"/g, '""')}"`,
+                `"${(item.justificacion || '').replace(/"/g, '""')}"`,
+                `"${(item.pasos_sugeridos || '').replace(/"/g, '""')}"`
+            ];
+            csv += row.join(',') + '\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', 'matriz_priorizacion_sena.csv');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Copiar matriz al portapapeles
+    function copyMatrix() {
+        if (!currentAnalysisData || !currentAnalysisData.acciones) {
+            alert('No hay datos para copiar.');
+            return;
+        }
+
+        let textToCopy = 'MATRIZ DE PRIORIZACIÓN DE ACCIONES - INMERSIÓN COMUNITARIA\n\n';
+        currentAnalysisData.acciones.forEach((item, index) => {
+            textToCopy += `${index + 1}. Acción: ${item.accion}\n`;
+            textToCopy += `   - Evidencia: ${item.evidencia_observada}\n`;
+            textToCopy += `   - Clasificación: ${item.clasificacion} (${item.ambito_misional})\n`;
+            textToCopy += `   - Justificación: ${item.justificacion}\n`;
+            textToCopy += `   - Pasos: ${item.pasos_sugeridos}\n\n`;
+        });
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('¡Matriz copiada al portapapeles con éxito!');
+        }).catch(err => {
+            alert('Error al copiar al portapapeles: ' + err);
+        });
+    }
+</script>
+
+</body>
+</html>

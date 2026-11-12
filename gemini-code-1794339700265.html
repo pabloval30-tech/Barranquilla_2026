@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Gestión 2025 - Emprender (Interactive Suite)</title>
+    <!-- Chart.js para gráficos dinámicos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0d9488;
+            --accent: #f59e0b;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding-bottom: 50px;
+        }
+
+        /* Header Navigation */
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid var(--primary-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .header-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-title h1 {
+            font-size: 1.6rem;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-title span {
+            color: var(--primary-light);
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary-light);
+            color: white;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards & Components */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ref-tag {
+            font-size: 0.75rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--primary-light);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #38bdf8;
+            margin: 0.4rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Charts Layout */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 500px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* SWOT Matrix */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .swot-box {
+            border-radius: 10px;
+            padding: 1.2rem;
+            border-left: 5px solid;
+        }
+
+        .swot-s { background: rgba(16, 185, 129, 0.1); border-color: #10b981; }
+        .swot-w { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
+        .swot-o { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; }
+        .swot-t { background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; }
+
+        .swot-box h3 { margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .swot-item { margin-bottom: 0.8rem; font-size: 0.9rem; }
+        .tag-hecho { color: #34d399; font-weight: bold; font-size: 0.75rem; }
+        .tag-inferencia { color: #fbbf24; font-weight: bold; font-size: 0.75rem; }
+
+        /* Gamification Subtabs */
+        .subnav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .subnav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .subnav-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .game-panel { display: none; }
+        .game-panel.active { display: block; }
+
+        /* Match Game Styles */
+        .match-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .match-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .match-card {
+            background: #0f172a;
+            border: 2px solid var(--border);
+            padding: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .match-card.selected { border-color: var(--primary-light); background: rgba(59, 130, 246, 0.2); }
+        .match-card.matched { border-color: var(--success); background: rgba(16, 185, 129, 0.2); cursor: default; }
+        .match-card.incorrect { border-color: var(--danger); background: rgba(239, 68, 68, 0.2); }
+
+        /* Roulette Game Styles */
+        .roulette-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid var(--border);
+            position: relative;
+            transition: transform 3s cubic-bezier(0.15, 0.99, 0.18, 1);
+            overflow: hidden;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 20px solid var(--danger);
+            z-index: 10;
+        }
+
+        .quiz-card {
+            width: 100%;
+            max-width: 600px;
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .quiz-option:hover { background: rgba(59, 130, 246, 0.2); }
+
+        /* Race Board Game Styles */
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .board-cell {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            position: relative;
+            text-align: center;
+            padding: 2px;
+        }
+
+        .board-cell.start { background: rgba(16, 185, 129, 0.3); border-color: var(--success); }
+        .board-cell.finish { background: rgba(245, 158, 11, 0.3); border-color: var(--accent); }
+        .board-cell.center-zone { background: transparent; border: none; }
+
+        .player-token {
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid #fff;
+            position: absolute;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+            transition: all 0.3s;
+        }
+
+        .controls-panel {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.4rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { background: var(--border); cursor: not-allowed; }
+
+        .btn-reset { background: var(--danger); }
+
+        .feedback-box {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .feedback-box.correct { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); color: #34d399; }
+        .feedback-box.incorrect { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #f87171; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-title">
+                <h1>EMPRENDER <span>Informe de Gestión 2025 - Plataforma Interactiva</span></h1>
+            </div>
+            <nav>
+                <button class="nav-btn active" onclick="switchTab('resumen')">Informe Ejecutivo</button>
+                <button class="nav-btn" onclick="switchTab('dofa')">Matriz DOFA</button>
+                <button class="nav-btn" onclick="switchTab('gamificacion')">Zona Gamificada</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- SECCIÓN 1: INFORME EJECUTIVO -->
+        <section id="resumen" class="section active">
+            
+            <div class="card">
+                <div class="card-title">
+                    Resumen Narrativo Estratégico 2025
+                    <span class="ref-tag">Págs. 14, 15, 19, 29</span>
+                </div>
+                <p>Durante el año 2025, el Organismo Cooperativo Microempresarial de Colombia (<strong>Emprender</strong>) operó en un entorno económico exigente, caracterizado por ajustes en las tasas de referencia de mercado (DTF e IBR) y alta presión tecnológica. A pesar de esto, la entidad reafirmó su rol como organismo de segundo grado articulando capacidades para más de 30 entidades asociadas[cite: 14, 29].</p>
+                <br>
+                <p>Entre los principales logros del periodo destaca una colocación total de crédito por <strong>COP 10.959 millones</strong> (un incremento del 27% respecto al 2024)[cite: 15], la consolidación de la plataforma de formación virtual <strong>BIRU</strong> con 53.968 nuevos certificados emitidos[cite: 15, 31], y la expansión de la red con la incorporación de 7 nuevos asociados institucionales[cite: 14, 29]. En términos de calidad de cartera, la cooperativa mantuvo un indicador de mora superior a 30 días excepcionalmente bajo del <strong>0.19%</strong>[cite: 9, 20].</p>
+            </div>
+
+            <!-- Metricas Principales -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Activo Total</div>
+                    <div class="metric-value">$15.334M</div>
+                    <div class="metric-label">COP (Pág. 15, 43)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Colocación Anual</div>
+                    <div class="metric-value">$10.959M</div>
+                    <div class="metric-label">+27% vs 2024 (Pág. 9, 15)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Mora > 30 días (ICV)</div>
+                    <div class="metric-value">0.19%</div>
+                    <div class="metric-label">Excelente cartera (Pág. 9, 20)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Rentabilidad ROA / ROE</div>
+                    <div class="metric-value">1.40% / 1.52%</div>
+                    <div class="metric-label">Indicadores (Pág. 9)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Graduados BIRU 2025</div>
+                    <div class="metric-value">18.540</div>
+                    <div class="metric-label">Personas (Pág. 31)</div>
+                </div>
+            </div>
+
+            <!-- Gráficos interactivos -->
+            <div class="charts-grid">
+                <div class="card">
+                    <div class="card-title">Composición de Ingresos 2025 vs 2024 (COP) <span class="ref-tag">Pág. 45</span></div>
+                    <div class="chart-container">
+                        <canvas id="chartIngresos"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Distribución de Cartera por Modalidad <span class="ref-tag">Pág. 20</span></div>
+                    <div class="chart-container">
+                        <canvas id="chartCartera"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN 2: MATRIZ DOFA -->
+        <section id="dofa" class="section">
+            <div class="card">
+                <div class="card-title">Matriz DOFA: Hechos Verificables e Inferencias Analíticas</div>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                    Esta matriz clasifica rigurosamente los hallazgos del PDF entre hechos expresamente documentados e inferencias analíticas derivadas del contexto del informe.
+                </p>
+
+                <div class="swot-grid">
+                    <!-- Fortalezas -->
+                    <div class="swot-box swot-s">
+                        <h3>FORTALEZAS</h3>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Excelente calidad de cartera con mora &gt; 30 días de solo 0.19% al cierre de 2025 <span class="ref-tag">Pág. 9, 20</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Plataforma EdTech BIRU consolidada con 144.897 certificados acumulados en 8 años <span class="ref-tag">Pág. 15, 31</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Solidez patrimonial con un 98% de fondeo basado en recursos propios <span class="ref-tag">Pág. 22</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-inferencia">[INFERENCIA]</span> La baja tasa de morosidad demuestra alta efectividad en los modelos de selección y scoring de deudores.
+                        </div>
+                    </div>
+
+                    <!-- Debilidades -->
+                    <div class="swot-box swot-w">
+                        <h3>DEBILIDADES</h3>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Reducción del 19% en los ingresos por intereses de la cartera de crédito debido a bajas de DTF/IBR <span class="ref-tag">Pág. 15</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Disminución del saldo bruto total de la cartera de crédito en -7.9% anual <span class="ref-tag">Pág. 20</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-inferencia">[INFERENCIA]</span> Dependencia financiera de los ingresos por margen financiero frente a ingresos por servicios/proyectos.
+                        </div>
+                    </div>
+
+                    <!-- Oportunidades -->
+                    <div class="swot-box swot-o">
+                        <h3>OPORTUNIDADES</h3>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Vinculación de 7 nuevos asociados que expanden la red a más de 600.000 clientes finales <span class="ref-tag">Pág. 14, 29</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Implementación del esquema regulatorio de Open Finance y Finanzas Abiertas <span class="ref-tag">Pág. 12, 33</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-inferencia">[INFERENCIA]</span> Potencial de monetización de nuevos programas de capacitación especializada en sostenibilidad e IA.
+                        </div>
+                    </div>
+
+                    <!-- Amenazas -->
+                    <div class="swot-box swot-t">
+                        <h3>AMENAZAS</h3>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Entorno de alta incertidumbre macroeconómica y presiones normativas en el sector solidario <span class="ref-tag">Pág. 14, 16</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-hecho">[HECHO]</span> Crecientes riesgos operativos y cibernéticos asociados a la transformación digital <span class="ref-tag">Pág. 16</span>
+                        </div>
+                        <div class="swot-item">
+                            <span class="tag-inferencia">[INFERENCIA]</span> Intensa competencia en el sector de microfinanzas por parte de Neobancos y Fintechs eficientes.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: ZONA GAMIFICADA -->
+        <section id="gamificacion" class="section">
+            
+            <div class="subnav">
+                <button class="subnav-btn active" onclick="switchGame('game1')">1. Emparejamiento</button>
+                <button class="subnav-btn" onclick="switchGame('game2')">2. Ruleta de Preguntas</button>
+                <button class="subnav-btn" onclick="switchGame('game3')">3. Carrera del Saber</button>
+            </div>
+
+            <!-- JUEGO 1: EMPAREJAMIENTO -->
+            <div id="game1" class="game-panel active card">
+                <div class="card-title">Emparejamiento de Conceptos Clave <span style="font-size: 0.9rem;">Puntaje: <span id="match-score">0</span>/5</span></div>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Selecciona un término de la izquierda y luego su definición o cifra correspondiente en la derecha.</p>
+                
+                <div class="match-container">
+                    <div class="match-column" id="match-left"></div>
+                    <div class="match-column" id="match-right"></div>
+                </div>
+                <div class="controls-panel">
+                    <button class="btn btn-reset" onclick="initMatchGame()">Reiniciar Juego</button>
+                </div>
+            </div>
+
+            <!-- JUEGO 2: RULETA -->
+            <div id="game2" class="game-panel card">
+                <div class="card-title">Ruleta del Conocimiento 2025 <span style="font-size: 0.9rem;">Puntuación: <span id="roulette-score">0</span> pts</span></div>
+                
+                <div class="roulette-wrapper">
+                    <div class="wheel-container">
+                        <div class="wheel-pointer"></div>
+                        <div class="wheel" id="wheel">
+                            <!-- Los segmentos se pintan con CSS Conic Gradient dinámico -->
+                        </div>
+                    </div>
+                    <button class="btn" id="spin-btn" onclick="spinWheel()">Girar Ruleta</button>
+
+                    <div class="quiz-card" id="quiz-box" style="display: none;">
+                        <h4 id="quiz-question" style="margin-bottom: 1rem;">Pregunta...</h4>
+                        <div id="quiz-options"></div>
+                        <div id="quiz-feedback" class="feedback-box"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JUEGO 3: CARRERA CON DADO Y TABLERO PERIMETRAL -->
+            <div id="game3" class="game-panel card">
+                <div class="card-title">Carrera del Saber Cooperativo <span style="font-size: 0.9rem;">Posición: Casilla <span id="player-pos">0</span>/16</span></div>
+                <p style="margin-bottom: 0.5rem; color: var(--text-muted);">Lanza el dado para avanzar. Responde correctamente para mantener o aumentar tu avance; de lo contrario retrocederás.</p>
+
+                <div class="board-container">
+                    <div class="board-grid" id="board-grid">
+                        <!-- Casillas generadas mediante JS -->
+                    </div>
+
+                    <div class="controls-panel">
+                        <button class="btn" id="roll-btn" onclick="rollDice()">🎲 Lanzar Dado</button>
+                        <span id="dice-result" style="font-size: 1.2rem; font-weight: bold;"></span>
+                        <button class="btn btn-reset" onclick="resetRaceGame()">Reiniciar Carrera</button>
+                    </div>
+
+                    <div class="quiz-card" id="race-quiz-box" style="display: none; margin-top: 1rem;">
+                        <h4 id="race-question">Pregunta...</h4>
+                        <div id="race-options"></div>
+                        <div id="race-feedback" class="feedback-box"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+        /* ===================================================
+           NAVEGACIÓN PRINCIPAL Y SUB-NAVEGACIÓN
+           =================================================== */
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchGame(gameId) {
+            document.querySelectorAll('.game-panel').forEach(g => g.classList.remove('active'));
+            document.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(gameId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        /* ===================================================
+           GRÁFICOS CHART.JS
+           =================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Gráfico 1: Ingresos
+            const ctx1 = document.getElementById('chartIngresos').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Cartera Crédito', 'Servicios / Proyectos', 'Otros / Recuperación'],
+                    datasets: [
+                        { label: '2025 ($)', data: [1874590709, 260027597, 293771159], backgroundColor: '#3b82f6' },
+                        { label: '2024 ($)', data: [2302013698, 214830323, 312771428], backgroundColor: '#0d9488' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f8fafc' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+
+            // Gráfico 2: Cartera por Modalidad
+            const ctx2 = document.getElementById('chartCartera').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Comercial (95.5%)', 'Consumo (4.5%)'],
+                    datasets: [{
+                        data: [95.5, 4.5],
+                        backgroundColor: ['#3b82f6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#f8fafc' } } }
+                }
+            });
+
+            // Inicializar Juegos
+            initMatchGame();
+            initRoulette();
+            initRaceBoard();
+        });
+
+        /* ===================================================
+           JUEGO 1: EMPAREJAMIENTO
+           =================================================== */
+        const matchData = [
+            { id: 1, concept: "BIRU", def: "Plataforma EdTech de formación virtual (Pág. 31)", ref: "Pág. 31" },
+            { id: 2, concept: "Mora > 30 días", def: "0.19% al cierre de 2025 (Pág. 9, 20)", ref: "Pág. 20" },
+            { id: 3, concept: "Nuevos Asociados", def: "7 instituciones sumadas en 2025 (Pág. 29)", ref: "Pág. 29" },
+            { id: 4, concept: "Colocaciones 2025", def: "COP 10.959 millones (+27%) (Pág. 9, 15)", ref: "Pág. 15" },
+            { id: 5, concept: "Fondeo Recursos Propios", def: "98% de la estructura de fondeo (Pág. 22)", ref: "Pág. 22" }
+        ];
+
+        let selectedLeft = null;
+        let selectedRight = null;
+        let matchScore = 0;
+
+        function initMatchGame() {
+            matchScore = 0;
+            document.getElementById('match-score').innerText = matchScore;
+            const leftCol = document.getElementById('match-left');
+            const rightCol = document.getElementById('match-right');
+            leftCol.innerHTML = ''; rightCol.innerHTML = '';
+
+            const shuffledLeft = [...matchData].sort(() => Math.random() - 0.5);
+            const shuffledRight = [...matchData].sort(() => Math.random() - 0.5);
+
+            shuffledLeft.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerText = item.concept;
+                card.dataset.id = item.id;
+                card.onclick = () => selectMatchItem(card, 'left');
+                leftCol.appendChild(card);
+            });
+
+            shuffledRight.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerText = item.def;
+                card.dataset.id = item.id;
+                card.onclick = () => selectMatchItem(card, 'right');
+                rightCol.appendChild(card);
+            });
+        }
+
+        function selectMatchItem(card, side) {
+            if (card.classList.contains('matched')) return;
+
+            if (side === 'left') {
+                document.querySelectorAll('#match-left .match-card').forEach(c => c.classList.remove('selected'));
+                selectedLeft = card;
+            } else {
+                document.querySelectorAll('#match-right .match-card').forEach(c => c.classList.remove('selected'));
+                selectedRight = card;
+            }
+            card.classList.add('selected');
+
+            if (selectedLeft && selectedRight) {
+                if (selectedLeft.dataset.id === selectedRight.dataset.id) {
+                    selectedLeft.classList.add('matched');
+                    selectedRight.classList.add('matched');
+                    matchScore++;
+                    document.getElementById('match-score').innerText = matchScore;
+                } else {
+                    selectedLeft.classList.add('incorrect');
+                    selectedRight.classList.add('incorrect');
+                    const l = selectedLeft; const r = selectedRight;
+                    setTimeout(() => {
+                        l.classList.remove('incorrect', 'selected');
+                        r.classList.remove('incorrect', 'selected');
+                    }, 800);
+                }
+                selectedLeft = null; selectedRight = null;
+            }
+        }
+
+        /* ===================================================
+           JUEGO 2: RULETA DE PREGUNTAS (10 PREGUNTAS)
+           =================================================== */
+        const rouletteQuestions = [
+            { q: "¿A cuánto ascendió la colocación de crédito en 2025?", opts: ["COP 10.959 Millones", "COP 13.366 Millones", "COP 15.334 Millones"], ans: 0, ref: "Pág. 9, 15" },
+            { q: "¿Cuál es el porcentaje de mora > 30 días al cierre de 2025?", opts: ["1.40%", "0.19%", "6.53%"], ans: 1, ref: "Pág. 9, 20" },
+            { q: "¿Cuántos nuevos asociados se vincularon en 2025?", opts: ["5 asociados", "7 asociados", "12 asociados"], ans: 1, ref: "Pág. 14, 29" },
+            { q: "¿Cuántos certificados emitió la plataforma BIRU en 2025?", opts: ["18.540", "53.968", "144.897"], ans: 1, ref: "Pág. 15, 31" },
+            { q: "¿Dónde se celebró la Asamblea Ordinaria de 2025?", opts: ["Bogotá", "Santiago de Cali", "Pereira"], ans: 1, ref: "Pág. 11" },
+            { q: "¿Cuál fue el total del Activo de Emprender al cierre de 2025?", opts: ["$15.334 Millones", "$16.465 Millones", "$13.366 Millones"], ans: 0, ref: "Pág. 15, 43" },
+            { q: "¿Qué porcentaje de los recursos de fondeo corresponde a patrimonio propio?", opts: ["82%", "95.5%", "98%"], ans: 2, ref: "Pág. 22" },
+            { q: "En la Pasantía Futuro Sostenible participaron en alianza con:", opts: ["Universidad Nacional", "Universitat Politècnica de València", "Universidad de los Andes"], ans: 1, ref: "Pág. 34" },
+            { q: "¿Cuál fue la tasa de graduación alcanzada en BIRU en 2025?", opts: ["60%", "72.6%", "85%"], ans: 1, ref: "Pág. 31" },
+            { q: "¿En cuántos departamentos tiene presencia la red de asociados?", opts: ["12 departamentos", "19 departamentos", "24 departamentos"], ans: 1, ref: "Pág. 41" }
+        ];
+
+        let currentAngle = 0;
+        let rouletteScore = 0;
+        let activeQuestionIndex = null;
+
+        function initRoulette() {
+            const wheel = document.getElementById('wheel');
+            wheel.style.background = `conic-gradient(
+                #3b82f6 0deg 36deg, #0d9488 36deg 72deg, #f59e0b 72deg 108deg,
+                #10b981 108deg 144deg, #6366f1 144deg 180deg, #ec4899 180deg 216deg,
+                #8b5cf6 216deg 252deg, #14b8a6 252deg 288deg, #f97316 288deg 324deg, #06b6d4 324deg 360deg
+            )`;
+        }
+
+        function spinWheel() {
+            document.getElementById('quiz-box').style.display = 'none';
+            document.getElementById('spin-btn').disabled = true;
+
+            const extraSpin = Math.floor(Math.random() * 360) + 1440; // Mínimo 4 vueltas
+            currentAngle += extraSpin;
+            document.getElementById('wheel').style.transform = `rotate(${currentAngle}deg)`;
+
+            setTimeout(() => {
+                document.getElementById('spin-btn').disabled = false;
+                activeQuestionIndex = Math.floor(Math.random() * rouletteQuestions.length);
+                showQuestion(activeQuestionIndex);
+            }, 3200);
+        }
+
+        function showQuestion(idx) {
+            const q = rouletteQuestions[idx];
+            document.getElementById('quiz-question').innerText = q.q;
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            document.getElementById('quiz-feedback').style.display = 'none';
+
+            q.opts.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => checkRouletteAnswer(idx, i);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-box').style.display = 'block';
+        }
+
+        function checkRouletteAnswer(qIdx, selectedOpt) {
+            const q = rouletteQuestions[qIdx];
+            const fb = document.getElementById('quiz-feedback');
+            fb.style.display = 'block';
+
+            if (selectedOpt === q.ans) {
+                fb.className = 'feedback-box correct';
+                fb.innerText = `¡Correcto! Ref: ${q.ref}`;
+                rouletteScore += 10;
+            } else {
+                fb.className = 'feedback-box incorrect';
+                fb.innerText = `Incorrecto. La respuesta correcta es: ${q.opts[q.ans]}. Ref: ${q.ref}`;
+            }
+            document.getElementById('roulette-score').innerText = rouletteScore;
+            document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+        }
+
+        /* ===================================================
+           JUEGO 3: CARRERA CON DADO Y TABLERO PERIMETRAL
+           =================================================== */
+        // Definición perimetral de 16 casillas (6 cols x 4 filas)
+        const boardLayout = [
+            { pos: 0, r: 1, c: 1, type: 'start', label: 'Inicio' },
+            { pos: 1, r: 1, c: 2 }, { pos: 2, r: 1, c: 3 }, { pos: 3, r: 1, c: 4 }, { pos: 4, r: 1, c: 5 },
+            { pos: 5, r: 1, c: 6 }, { pos: 6, r: 2, c: 6 }, { pos: 7, r: 3, c: 6 },
+            { pos: 8, r: 4, c: 6 }, { pos: 9, r: 4, c: 5 }, { pos: 10, r: 4, c: 4 }, { pos: 11, r: 4, c: 3 },
+            { pos: 12, r: 4, c: 2 }, { pos: 13, r: 4, c: 1 }, { pos: 14, r: 3, c: 1 },
+            { pos: 15, r: 2, c: 1 }, { pos: 16, r: 2, c: 2, type: 'finish', label: 'Meta' }
+        ];
+
+        let playerPosition = 0;
+        let diceRoll = 0;
+
+        function initRaceBoard() {
+            const grid = document.getElementById('board-grid');
+            grid.innerHTML = '';
+
+            // Crear matriz 4x6
+            for (let r = 1; r <= 4; r++) {
+                for (let c = 1; c <= 6; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell';
+                    const cellData = boardLayout.find(b => b.r === r && b.c === c);
+
+                    if (cellData) {
+                        cell.id = `cell-${cellData.pos}`;
+                        if (cellData.type === 'start') { cell.classList.add('start'); cell.innerText = 'INICIO'; }
+                        else if (cellData.type === 'finish') { cell.classList.add('finish'); cell.innerText = 'META'; }
+                        else { cell.innerText = cellData.pos; }
+                    } else {
+                        cell.classList.add('center-zone');
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Crear token del jugador
+            const token = document.createElement('div');
+            token.className = 'player-token';
+            token.id = 'player-token';
+            document.getElementById('board-grid').appendChild(token);
+
+            updatePlayerTokenPosition();
+        }
+
+        function updatePlayerTokenPosition() {
+            const targetCellData = boardLayout.find(b => b.pos === playerPosition) || boardLayout[0];
+            const cellElem = document.getElementById(`cell-${targetCellData.pos}`);
+            const token = document.getElementById('player-token');
+
+            token.style.top = (cellElem.offsetTop + cellElem.offsetHeight / 2 - 10) + 'px';
+            token.style.left = (cellElem.offsetLeft + cellElem.offsetWidth / 2 - 10) + 'px';
+            document.getElementById('player-pos').innerText = playerPosition;
+        }
+
+        function rollDice() {
+            document.getElementById('roll-btn').disabled = true;
+            diceRoll = Math.floor(Math.random() * 3) + 1; // Avance de 1 a 3 pasos
+            document.getElementById('dice-result').innerText = `Dado: ${diceRoll}`;
+
+            let prevPos = playerPosition;
+            playerPosition = Math.min(playerPosition + diceRoll, 16);
+            updatePlayerTokenPosition();
+
+            if (playerPosition >= 16) {
+                alert("🎉 ¡Felicidades, has alcanzado la Meta de la Gestión Emprender 2025!");
+                return;
+            }
+
+            // Presentar reto de pregunta
+            setTimeout(() => { triggerRaceChallenge(prevPos); }, 600);
+        }
+
+        function triggerRaceChallenge(previousPosition) {
+            const qIdx = Math.floor(Math.random() * rouletteQuestions.length);
+            const q = rouletteQuestions[qIdx];
+
+            document.getElementById('race-question').innerText = `Reto Casilla ${playerPosition}: ${q.q}`;
+            const optsContainer = document.getElementById('race-options');
+            optsContainer.innerHTML = '';
+            document.getElementById('race-feedback').style.display = 'none';
+
+            q.opts.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => checkRaceAnswer(i, q.ans, previousPosition, q.ref);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('race-quiz-box').style.display = 'block';
+        }
+
+        function checkRaceAnswer(selected, correct, prevPos, ref) {
+            const fb = document.getElementById('race-feedback');
+            fb.style.display = 'block';
+
+            if (selected === correct) {
+                fb.className = 'feedback-box correct';
+                fb.innerText = `¡Respuesta Correcta! Te mantienes en la casilla ${playerPosition}. Ref: ${ref}`;
+            } else {
+                fb.className = 'feedback-box incorrect';
+                fb.innerText = `Incorrecto. Retrocedes a la casilla ${prevPos}. Ref: ${ref}`;
+                playerPosition = prevPos;
+                updatePlayerTokenPosition();
+            }
+
+            document.querySelectorAll('#race-options button').forEach(b => b.disabled = true);
+            setTimeout(() => {
+                document.getElementById('race-quiz-box').style.display = 'none';
+                document.getElementById('roll-btn').disabled = false;
+            }, 2500);
+        }
+
+        function resetRaceGame() {
+            playerPosition = 0;
+            updatePlayerTokenPosition();
+            document.getElementById('dice-result').innerText = '';
+            document.getElementById('roll-btn').disabled = false;
+            document.getElementById('race-quiz-box').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

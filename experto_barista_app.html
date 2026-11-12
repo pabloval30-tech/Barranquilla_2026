@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-stone-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experto Barista - Asistente Especializado en Café</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coffee: {
+                            50: '#fdfbf7',
+                            100: '#f7f2e8',
+                            200: '#eee0cb',
+                            300: '#e1c7a5',
+                            400: '#cfa479',
+                            500: '#bd8454',
+                            600: '#aa6b42',
+                            700: '#8d5137',
+                            800: '#734232',
+                            900: '#5e372b',
+                            950: '#321c15',
+                        },
+                        espresso: '#1b100c',
+                        cream: '#fbf7ee'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Font Inter & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Estilos personalizados y scrollbars finos */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #29221f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5e372b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8d5137;
+        }
+        
+        /* Animación suave para pulsos y spinners */
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Formato preliminar de respuestas */
+        .prose-coffee p { margin-bottom: 0.75rem; }
+        .prose-coffee ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .prose-coffee ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .prose-coffee strong { color: #fbf7ee; font-weight: 600; }
+        .prose-coffee code { background-color: rgba(255,255,255,0.1); padding: 0.15rem 0.3rem; border-radius: 0.25rem; font-size: 0.875em; }
+    </style>
+</head>
+<body class="h-full text-stone-200 flex flex-col font-sans antialiased selection:bg-coffee-600 selection:text-white">
+
+    <!-- Header Principal -->
+    <header class="bg-stone-950 border-b border-stone-800 shadow-md shrink-0">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-coffee-600 to-coffee-900 flex items-center justify-center text-cream shadow-lg shadow-coffee-950/50 border border-coffee-500/30">
+                    <i class="fa-solid fa-mug-hot text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-cream leading-tight flex items-center gap-2">
+                        Experto Barista
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-coffee-900/80 text-coffee-300 border border-coffee-700/50 font-normal">v1.0</span>
+                    </h1>
+                    <p class="text-xs text-stone-400">Asistente Técnico Especializado en Café de Especialidad</p>
+                </div>
+            </div>
+
+            <!-- Badges de Estado y Acciones del Header -->
+            <div class="flex items-center gap-2">
+                <div id="modeStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-950/60 text-amber-300 border border-amber-700/50">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="modeBadgeText">Simulación Activa</span>
+                </div>
+                <button id="btnExportChat" onclick="exportChatHistory()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-stone-700" title="Exportar conversación actual">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="hidden sm:inline">Exportar</span>
+                </button>
+                <button id="btnResetChat" onclick="resetConversation()" class="px-3 py-1.5 bg-stone-800 hover:bg-red-950/50 hover:text-red-300 text-stone-300 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border border-stone-700 hover:border-red-800/50" title="Reiniciar sesión de chat">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">Reiniciar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner de Advertencia de Seguridad Importante -->
+    <div class="bg-amber-950/80 border-b border-amber-800/60 px-4 py-2 text-xs text-amber-200 shrink-0">
+        <div class="max-w-6xl mx-auto flex items-start sm:items-center justify-between gap-2">
+            <div class="flex items-start sm:items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5 sm:mt-0 text-sm"></i>
+                <p>
+                    <strong class="font-semibold text-amber-100">Advertencia de Seguridad:</strong> 
+                    Ingresar su API Key directamente en el navegador expone sus credenciales en la red de su dispositivo. Para producción se requiere un servidor backend intermediario. <span class="hidden md:inline">Nunca comparta su clave en el chat.</span>
+                </p>
+            </div>
+            <button onclick="this.parentElement.parentElement.style.display='none'" class="text-amber-400 hover:text-white text-base leading-none p-1">
+                &times;
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel de Configuración e Integración API -->
+    <section class="bg-stone-900 border-b border-stone-800 px-4 py-3 shrink-0">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            
+            <!-- Selector de Modo -->
+            <div class="md:col-span-4 flex flex-col gap-1">
+                <label for="modeSelect" class="text-xs font-medium text-stone-400 flex items-center gap-1">
+                    <i class="fa-solid fa-sliders text-coffee-400"></i> Modo de Funcionamiento
+                </label>
+                <select id="modeSelect" onchange="toggleMode()" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-coffee-500 transition">
+                    <option value="simulated">Modo Simulación (Gratuito / Demo)</option>
+                    <option value="real">Modo Real (OpenAI API Chat Completion)</option>
+                </select>
+            </div>
+
+            <!-- Campo API Key (Sólo visible/requerido en Modo Real) -->
+            <div id="apiKeyContainer" class="md:col-span-5 flex flex-col gap-1 opacity-50 pointer-events-none transition-all">
+                <label for="apiKeyInput" class="text-xs font-medium text-stone-400 flex items-center justify-between">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-key text-coffee-400"></i> OpenAI API Key</span>
+                    <span class="text-[10px] text-amber-400/90 font-mono">Sólo memoria temporal</span>
+                </label>
+                <div class="relative">
+                    <input type="password" id="apiKeyInput" placeholder="sk-proj-..." autocomplete="off" class="w-full bg-stone-950 border border-stone-700 rounded-lg pl-3 pr-8 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:outline-none focus:border-coffee-500 font-mono transition">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 text-xs">
+                        <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modelo y Configuración de Ventana de Contexto -->
+            <div class="md:col-span-3 flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                    <label for="maxTurnsInput" class="text-xs font-medium text-stone-400 flex items-center gap-1">
+                        <i class="fa-solid fa-memory text-coffee-400"></i> Límite de Turnos
+                    </label>
+                    <span id="maxTurnsValue" class="text-xs font-bold text-coffee-400 font-mono">10</span>
+                </div>
+                <input type="range" id="maxTurnsInput" min="4" max="20" step="2" value="10" oninput="document.getElementById('maxTurnsValue').textContent = this.value; checkContextLimitNotice();" class="accent-coffee-500 h-1.5 bg-stone-950 rounded-lg cursor-pointer">
+                <div class="flex justify-between text-[10px] text-stone-500 font-mono">
+                    <span>4 turnos (Corto)</span>
+                    <span>20 turnos (Largo)</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Contenedor Principal del Chat -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col min-h-0">
+
+        <!-- Área de Conversación Desplazable -->
+        <div id="chatWindow" class="flex-1 bg-stone-950/70 border border-stone-800 rounded-2xl p-4 overflow-y-auto space-y-4 shadow-inner">
+            
+            <!-- Mensaje de Bienvenida del Sistema -->
+            <div class="flex items-start gap-3 max-w-3xl">
+                <div class="w-8 h-8 rounded-lg bg-coffee-800 text-cream flex items-center justify-center shrink-0 shadow mt-0.5">
+                    <i class="fa-solid fa-user-ninja text-xs"></i>
+                </div>
+                <div class="bg-stone-900 border border-stone-800 rounded-2xl rounded-tl-none p-4 text-stone-200 text-sm shadow-sm space-y-2">
+                    <div class="flex items-center justify-between border-b border-stone-800 pb-2 mb-2">
+                        <span class="font-semibold text-coffee-300 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-certificate"></i> Experto Barista Bot
+                        </span>
+                        <span class="text-[10px] text-stone-500 font-mono">Sistema</span>
+                    </div>
+                    <p class="leading-relaxed">¡Saludos! Soy tu especialista e instructor técnico en café. Puedo ayudarte en:</p>
+                    <ul class="text-xs space-y-1 text-stone-300 list-disc pl-4">
+                        <li><strong>Origen y Cultivo:</strong> Terroir, variedades (Arabica, Robusta, Geisha, Bourbon), beneficio (lavado, natural, honey).</li>
+                        <li><strong>Tostión y Molienda:</strong> Perfiles de tueste, curvas de desarrollo, micras y distribución granulométrica.</li>
+                        <li><strong>Extracción y Métodos:</strong> Espresso, V60, Aeropress, Chemex, Prensa Francesa, sifón japonés.</li>
+                        <li><strong>Análisis Sensorial y Bebidas:</strong> Protocolo cupping SCA, rueda de sabores, calibración de ratios y arte latte.</li>
+                    </ul>
+                    <p class="text-xs text-stone-400 italic pt-1">¿Qué tema o receta deseas explorar hoy?</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Indicador de contexto descartado -->
+        <div id="contextNotice" class="hidden my-2 px-3 py-1.5 bg-stone-900/90 border border-amber-800/40 rounded-lg text-center text-amber-300 text-xs animate-fade-in flex items-center justify-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span id="contextNoticeText">Se han omitido mensajes antiguos para optimizar la memoria de contexto.</span>
+        </div>
+
+        <!-- Caja de Entrada de Pregunta -->
+        <div class="mt-3 bg-stone-900 border border-stone-800 rounded-xl p-2.5 shadow-lg flex flex-col gap-2">
+            <div class="relative">
+                <textarea id="userInput" rows="2" placeholder="Haz una pregunta técnica sobre café... (Ej. ¿Cómo calibrar la molienda para un espresso con 18g de café?)" class="w-full bg-stone-950 text-stone-100 placeholder-stone-500 text-sm rounded-lg p-3 pr-10 focus:outline-none focus:border-coffee-500 border border-stone-800 resize-none transition" onkeydown="handleKeyDown(event)"></textarea>
+                <div class="absolute right-3 bottom-3 text-[10px] text-stone-500 font-mono pointer-events-none hidden sm:block">
+                    [Enter] Enviar | [Shift+Enter] Salto
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+                <div class="text-xs text-stone-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-filter text-stone-500"></i>
+                    <span class="text-[11px] text-stone-400">Especializado exclusivamente en temas cafeteros</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnSend" onclick="sendMessage()" class="px-5 py-2 bg-gradient-to-r from-coffee-700 to-coffee-600 hover:from-coffee-600 hover:to-coffee-500 text-white font-medium rounded-lg text-xs shadow-md shadow-coffee-950/40 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Enviar Pregunta</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal de Notificación o Mensaje de Error Completo -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center gap-3 text-red-400">
+                <i id="modalIcon" class="fa-solid fa-triangle-exclamation text-2xl"></i>
+                <h3 id="modalTitle" class="text-lg font-bold text-stone-100">Error de Configuración</h3>
+            </div>
+            <p id="modalBody" class="text-xs text-stone-300 leading-relaxed">
+                Mensaje detallado...
+            </p>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeModal()" class="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded-lg text-xs font-medium border border-stone-600">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA JAVASCRIPT VANILLA MONOLÍTICA -->
+    <script>
+        /**
+         * EXPERTO BARISTA - Lógica de Aplicación Vanilla JS
+         * 
+         * PROMPT DEL SISTEMA: Define la personalidad y límites estrictos del bot barista.
+         */
+        const SYSTEM_PROMPT = `Tu nombre es "Experto Barista", un asistente virtual altamente especializado EXCLUSIVAMENTE en el mundo del café de especialidad y la ciencia barista profesional.
+
+INSTRUCCIONES DE ALCANCE Y CONDUCTA:
+1. ESPECIALIZACIÓN EXCLUSIVA: Solo responderás sobre café: origen, variedades botánicas (Arabica, Robusta, Geisha, Bourbon, Typica, etc.), agronomía y cultivo, cosecha, procesos de beneficio (lavado, natural, honey, maceración carbónica), tostación (curvas, Maillard, primer y segundo crack, perfilado), molienda (distribución granulométrica, ajuste de micras), extracción (espresso, V60, Aeropress, Prensa Francesa, Chemex, Kalita, Sifón), física y química de la extracción (TDS, porcentaje de extracción EY, solubles), leche y microespuma (química de proteínas/grasas, latte art), análisis sensorial (protocolo de catación SCA, rueda de sabores y aromas) y operación/mantenimiento de máquinas de espresso y molinos.
+
+2. RECHAZO RESPETUOSO DE TEMAS AJENOS:
+Si la consulta del usuario NO está directamente relacionada con el café o el barismo (por ejemplo: programación, política, matemáticas ajenas al café, medicina, deportes, cocina no relacionada con café, etc.), DEBES:
+- Declinarla amablemente de forma concisa.
+- Declarar tu especialización exclusiva en café.
+- Recomendar al usuario buscar fuentes especializadas adecuadas para su tema.
+- Invitarlo cordialmente a hacer preguntas sobre café, métodos de extracción o tueste.
+Ejemplo de respuesta de rechazo: "Como Experto Barista, mi campo de conocimiento está enfocado únicamente en el café, sus métodos de extracción, cultivo y barismo profesional. Para consultas sobre [tema del usuario], te sugiero acudir a fuentes especializadas. ¡Estaré encantado de ayudarte si tienes dudas sobre recetas de V60, calibración de espresso o perfiles de tueste!"
+
+3. RIGOR TÉCNICO Y HONESTIDAD:
+- Responde con absoluta claridad, cordialidad y profesionalismo.
+- Si no posees suficiente información técnica o si existe incertidumbre científica sobre algún punto, reconócelo explícitamente sin inventar datos ni parámetros.
+- Utiliza terminología técnica precisa (ej. Ratios de preparación, TDS, rendimiento de extracción EY, barismo, canalización o channeling, tiempo de contacto, ratio 1:15, etc.).`;
+
+        // BASE DE DATOS DE Respuestas Simuladas para el Modo Demo/Simulación
+        const SIMULATED_RESPONSES = [
+            {
+                keywords: ['espresso', 'extraer', 'calibrar', 'ratio', 'presion'],
+                reply: "Para calibrar un **Espresso de Especialidad** estándar:\n\n1. **Dosis:** 18 gramos de café en la canasta del portafiltro.\n2. **Rendimiento (Yield):** 36 gramos de bebida en taza (Ratio 1:2).\n3. **Tiempo de Extracción:** Entre 25 y 30 segundos.\n4. **Temperatura del Agua:** 90°C – 93°C a 9 bares de presión.\n\n*Consejo Técnico:* Si tu espresso sabe agrio y salado con un tiempo menor a 20 segundos, la molienda está muy gruesa (sub-extracción). Si sabe amargo, seco y tarda más de 35 segundos, la molienda está demasiado fina (sobre-extracción)."
+            },
+            {
+                keywords: ['v60', 'filtrado', 'goteo', 'vertido', 'pour over'],
+                reply: "La preparación en **Hario V60** resalta la acidez limpia y las notas florales del café:\n\n* **Ratio:** 1:16 (15g de café molido medio-fino por 240ml de agua a 92°C).\n* **Pre-infusión:** Vierte 45g de agua y espera 45 segundos para liberar el CO2 (bloom).\n* **Verter:** Realiza vertidos en espiral desde el centro hacia afuera sin tocar las paredes de papel.\n* **Tiempo total:** 2:30 a 3:00 minutos.\n\nAsegúrate de enjuagar el filtro de papel con agua caliente antes de agregar el café para eliminar sabores a celulosa."
+            },
+            {
+                keywords: ['tostado', 'tueste', 'roast', 'crack', 'maillard'],
+                reply: "Durante la **tostación del café**, ocurren transformaciones físico-químicas clave:\n\n* **Fase de Secado (Drying Phase):** Absorción de calor endotérmica hasta los 160°C.\n* **Reacción de Maillard:** Entre 160°C y 200°C. Caramelización de azúcares y formación de compuestos aromáticos (melanoidinas).\n* **Primer Crack (First Crack):** Aprox. 195°C - 205°C. Liberación de vapor y estallido celular (reacción exotérmica). Tuestes claros/medios terminan aquí.\n* **Segundo Crack:** Aprox. 224°C. Fractura de la estructura de la celulosa, migración de aceites a la superficie. Tueste oscuro."
+            },
+            {
+                keywords: ['molienda', 'molino', 'micras', 'muelas', 'gruesa', 'fina'],
+                reply: "La **granulometría (molienda)** determina el área de contacto entre el agua y el café:\n\n* **Extra Fina (Ibriks / Turco):** Harina fina (< 100 µm).\n* **Fina (Espresso):** Sal fina de mesa (200 - 300 µm).\n* **Medio-Fina (Aeropress / V60):** Sal fina de mar (400 - 600 µm).\n* **Media (Chemex / Dripper):** Arena gruesa (700 - 800 µm).\n* **Gruesa (Prensa Francesa / Cold Brew):** Sal marina gruesa (> 1000 µm).\n\n*Regla fundamental:* A menor tamaño de partícula, mayor superficie de contacto y más rápida será la extracción."
+            },
+            {
+                keywords: ['variedad', 'geisha', 'bourbon', 'typica', 'robusta', 'arabica'],
+                reply: "Las principales especies de café son *Coffea Arabica* y *Coffea Canephora (Robusta)*:\n\n* **Arabica (60% producción mundial):** Crece a mayor altitud (900m - 2200m), contiene menor cafeína (1.2 - 1.5%), acidez más compleja y perfil aromático florar/frutal. Variedades célebres: *Geisha, Bourbon, Typica, Caturra, Castillo*.\n* **Robusta:** Cultivada a menor altitud, mayor resistencia a plagas, doble contenido de cafeína (2.2 - 2.7%), mayor cuerpo pero sabor más amargo y astringente."
+            }
+        ];
+
+        // ESTADO GLOBAL EN MEMORIA VOLÁTIL (Sin persistencia en localStorage/cookies)
+        let conversationHistory = []; // Estructura: [{role: 'user'|'assistant', content: '...'}]
+        let isProcessing = false;
+
+        // AL CARGAR LA PÁGINA
+        window.onload = function() {
+            toggleMode();
+        };
+
+        // Alternar visualización del modo (Simulación vs Real)
+        function toggleMode() {
+            const mode = document.getElementById('modeSelect').value;
+            const apiKeyContainer = document.getElementById('apiKeyContainer');
+            const modeStatusBadge = document.getElementById('modeStatusBadge');
+            const modeBadgeText = document.getElementById('modeBadgeText');
+
+            if (mode === 'real') {
+                apiKeyContainer.classList.remove('opacity-50', 'pointer-events-none');
+                modeStatusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/70 text-emerald-300 border border-emerald-700/50";
+                modeBadgeText.textContent = "Modo Real (OpenAI)";
+            } else {
+                apiKeyContainer.classList.add('opacity-50', 'pointer-events-none');
+                modeStatusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-950/60 text-amber-300 border border-amber-700/50";
+                modeBadgeText.textContent = "Simulación Activa";
+            }
+        };
+
+        // Mostrar / Ocultar API Key
+        function togglePasswordVisibility() {
+            const input = document.getElementById('apiKeyInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Manejar envío con la tecla Enter (Shift+Enter para nueva línea)
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // Función Principal para Enviar Mensajes
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const inputEl = document.getElementById('userInput');
+            const userText = inputEl.value.trim();
+
+            if (!userText) return;
+
+            const mode = document.getElementById('modeSelect').value;
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+
+            // Validación de credenciales en Modo Real
+            if (mode === 'real' && !apiKey) {
+                showModal("API Key Requerida", "Para usar el Modo Real debe ingresar una API Key válida de OpenAI en la barra superior. De lo contrario, cambie al 'Modo Simulación'.");
+                return;
+            }
+
+            // Deshabilitar UI durante el procesamiento
+            setLoadingState(true);
+
+            // Agregar mensaje de usuario al DOM y al historial
+            appendUserMessage(userText);
+            conversationHistory.push({ role: 'user', content: userText });
+            inputEl.value = '';
+
+            // Verificar y actualizar aviso de límite de contexto
+            checkContextLimitNotice();
+
+            // Procesar respuesta según modo
+            if (mode === 'simulated') {
+                setTimeout(() => {
+                    const simulatedText = generateSimulatedResponse(userText);
+                    appendAssistantMessage(simulatedText, 'Simulada (Demo)');
+                    conversationHistory.push({ role: 'assistant', content: simulatedText });
+                    setLoadingState(false);
+                }, 800);
+            } else {
+                // Modo Real OpenAI API Call
+                try {
+                    const assistantReply = await callOpenAiApi(apiKey);
+                    appendAssistantMessage(assistantReply, 'OpenAI (Real)');
+                    conversationHistory.push({ role: 'assistant', content: assistantReply });
+                } catch (err) {
+                    appendErrorMessage(`Error API: ${err.message}`);
+                } finally {
+                    setLoadingState(false);
+                }
+            }
+        }
+
+        // Generar Respuestas Simuladas Basadas en Palabras Clave o Refutación
+        function generateSimulatedResponse(query) {
+            const lower = query.toLowerCase();
+            
+            // Detectar si es una pregunta ajena al café (Filtro por simulación)
+            const offTopicKeywords = ['programacion', 'python', 'javascript', 'politica', 'futbol', 'medicina', 'pelicula', 'hipoteca', 'cripto', 'bitcoin'];
+            const isOffTopic = offTopicKeywords.some(k => lower.includes(k));
+
+            if (isOffTopic) {
+                return "Como **Experto Barista**, mi conocimiento se limita estrictamente a la agronomía, tueste, extracción y cata de café. Para consultas ajenas al mundo del café, te sugiero consultar fuentes especializadas. ¡Estaré encantado de responder si tienes alguna pregunta sobre métodos de filtrado, calibración de espresso o variedades botánicas!";
+            }
+
+            // Buscar coincidencia en respuestas simuladas predefinidas
+            for (const item of SIMULATED_RESPONSES) {
+                if (item.keywords.some(kw => lower.includes(kw))) {
+                    return item.reply;
+                }
+            }
+
+            // Respuesta por defecto genérica sobre café
+            return `Gracias por tu consulta sobre "*${query.substring(0, 30)}...*".\n\nEn el barismo profesional, cada variable afecta el resultado final: el tamaño de molienda modifica la superficie de contacto, la temperatura del agua afecta la tasa de extracción de los compuestos aromáticos, y el ratio define la fuerza de la taza.\n\n*Sugerencia:* Para ofrecerte un parámetro exacto, ¿podrías indicarme qué método de extracción o tipo de grano (origen/tueste) estás utilizando?`;
+        }
+
+        // Llamada Real a la API de OpenAI (Chat Completions)
+        async function callOpenAiApi(apiKey) {
+            const maxTurns = parseInt(document.getElementById('maxTurnsInput').value, 10);
+            
+            // Seleccionar los últimos N mensajes según el límite configurado
+            const recentMessages = conversationHistory.slice(-maxTurns);
+
+            // Armar el payload completo con el prompt de sistema al inicio
+            const payloadMessages = [
+                { role: 'system', content: SYSTEM_PROMPT },
+                ...recentMessages
+            ];
+
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: payloadMessages,
+                    temperature: 0.5,
+                    max_tokens: 700
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                if (response.status === 401) {
+                    throw new Error("API Key inválida o no autorizada (Error 401). Verifique su credencial.");
+                } else if (response.status === 429) {
+                    throw new Error("Límite de cuota excedido (Error 429). Verifique los fondos de su cuenta OpenAI.");
+                } else if (response.status === 500) {
+                    throw new Error("Error interno de los servidores de OpenAI (Error 500).");
+                } else {
+                    throw new Error(errData.error?.message || `Error HTTP HTTP ${response.status}`);
+                }
+            }
+
+            const data = await response.json();
+            if (!data.choices || data.choices.length === 0 || !data.choices[0].message?.content) {
+                throw new Error("La API respondió correctamente pero no devolvió contenido de texto.");
+            }
+
+            return data.choices[0].message.content;
+        }
+
+        // Gestión de la Ventana de Contexto y Avisos
+        function checkContextLimitNotice() {
+            const maxTurns = parseInt(document.getElementById('maxTurnsInput').value, 10);
+            const noticeEl = document.getElementById('contextNotice');
+            const noticeText = document.getElementById('contextNoticeText');
+
+            if (conversationHistory.length > maxTurns) {
+                const omitted = conversationHistory.length - maxTurns;
+                noticeText.textContent = `Atención: Se están omitiendo ${omitted} mensaje(s) antiguo(s) en la solicitud a la API para no exceder el límite de contexto (${maxTurns} turnos).`;
+                noticeEl.classList.remove('hidden');
+            } else {
+                noticeEl.classList.add('hidden');
+            }
+        }
+
+        // Renderizado de Mensajes en el DOM
+        function appendUserMessage(text) {
+            const chatWindow = document.getElementById('chatWindow');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex items-start justify-end gap-3 max-w-3xl ml-auto animate-fade-in";
+            
+            const sanitizedText = escapeHtml(text).replace(/\n/g, '<br>');
+
+            msgDiv.innerHTML = `
+                <div class="bg-coffee-900 border border-coffee-700/60 text-cream rounded-2xl rounded-tr-none p-4 text-sm shadow-md space-y-1">
+                    <div class="flex items-center justify-between gap-4 border-b border-coffee-800 pb-1 mb-1 text-[10px] text-coffee-300">
+                        <span class="font-semibold">Usuario</span>
+                        <span>${getCurrentTime()}</span>
+                    </div>
+                    <p class="leading-relaxed">${sanitizedText}</p>
+                </div>
+                <div class="w-8 h-8 rounded-lg bg-stone-700 text-stone-200 flex items-center justify-center shrink-0 shadow mt-0.5 font-bold text-xs">
+                    Tú
+                </div>
+            `;
+            chatWindow.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function appendAssistantMessage(text, modeLabel) {
+            const chatWindow = document.getElementById('chatWindow');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex items-start gap-3 max-w-3xl animate-fade-in";
+
+            const formattedContent = formatMarkdown(text);
+            const isSimulated = modeLabel.includes('Simulada');
+
+            const badgeColor = isSimulated 
+                ? "bg-amber-950/60 text-amber-300 border-amber-800/60" 
+                : "bg-emerald-950/60 text-emerald-300 border-emerald-800/60";
+
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-coffee-800 text-cream flex items-center justify-center shrink-0 shadow mt-0.5">
+                    <i class="fa-solid fa-mug-hot text-xs"></i>
+                </div>
+                <div class="bg-stone-900 border border-stone-800 rounded-2xl rounded-tl-none p-4 text-stone-200 text-sm shadow-sm space-y-2">
+                    <div class="flex items-center justify-between border-b border-stone-800 pb-2 mb-2">
+                        <span class="font-semibold text-coffee-300 text-xs flex items-center gap-1.5">
+                            Experto Barista
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full border font-mono ${badgeColor}">
+                            ${modeLabel}
+                        </span>
+                    </div>
+                    <div class="prose-coffee leading-relaxed text-stone-200 text-sm">
+                        ${formattedContent}
+                    </div>
+                </div>
+            `;
+            chatWindow.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function appendErrorMessage(errorText) {
+            const chatWindow = document.getElementById('chatWindow');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "flex items-start gap-3 max-w-3xl animate-fade-in";
+
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-red-950 text-red-400 border border-red-800 flex items-center justify-center shrink-0 shadow mt-0.5">
+                    <i class="fa-solid fa-circle-exclamation text-xs"></i>
+                </div>
+                <div class="bg-red-950/30 border border-red-900/60 rounded-2xl rounded-tl-none p-4 text-red-200 text-sm shadow-sm space-y-1">
+                    <div class="flex items-center justify-between border-b border-red-900/50 pb-1 mb-1">
+                        <span class="font-semibold text-red-400 text-xs">Error de Comunicación</span>
+                        <span class="text-[10px] text-red-400/80 font-mono">${getCurrentTime()}</span>
+                    </div>
+                    <p class="leading-relaxed text-xs">${escapeHtml(errorText)}</p>
+                </div>
+            `;
+            chatWindow.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        // Formateador Markdown simple (Negritas, listas, saltos de línea)
+        function formatMarkdown(text) {
+            let html = escapeHtml(text);
+            // Negritas **texto**
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Cursivas *texto*
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            // Saltos de línea de párrafos
+            html = html.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+            return html;
+        }
+
+        // Control de Estado de Carga UI
+        function setLoadingState(loading) {
+            isProcessing = loading;
+            const btnSend = document.getElementById('btnSend');
+            const userInput = document.getElementById('userInput');
+
+            if (loading) {
+                btnSend.disabled = true;
+                userInput.disabled = true;
+                btnSend.innerHTML = `
+                    <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+                    <span>Analizando...</span>
+                `;
+            } else {
+                btnSend.disabled = false;
+                userInput.disabled = false;
+                btnSend.innerHTML = `
+                    <span>Enviar Pregunta</span>
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                `;
+                userInput.focus();
+            }
+        }
+
+        // Reset de Conversación
+        function resetConversation() {
+            if (conversationHistory.length === 0) return;
+
+            if (confirm("¿Estás seguro de reiniciar la conversación? Se borrará el historial de esta sesión.")) {
+                conversationHistory = [];
+                const chatWindow = document.getElementById('chatWindow');
+                
+                // Limpiar dejando únicamente el mensaje inicial del sistema
+                chatWindow.innerHTML = `
+                    <div class="flex items-start gap-3 max-w-3xl">
+                        <div class="w-8 h-8 rounded-lg bg-coffee-800 text-cream flex items-center justify-center shrink-0 shadow mt-0.5">
+                            <i class="fa-solid fa-user-ninja text-xs"></i>
+                        </div>
+                        <div class="bg-stone-900 border border-stone-800 rounded-2xl rounded-tl-none p-4 text-stone-200 text-sm shadow-sm space-y-2">
+                            <div class="flex items-center justify-between border-b border-stone-800 pb-2 mb-2">
+                                <span class="font-semibold text-coffee-300 text-xs flex items-center gap-1.5">
+                                    <i class="fa-solid fa-certificate"></i> Experto Barista Bot
+                                </span>
+                                <span class="text-[10px] text-stone-500 font-mono">Conversación Reiniciada</span>
+                            </div>
+                            <p class="leading-relaxed">La conversación ha sido reiniciada. ¿En qué tema técnico de café deseas trabajar ahora?</p>
+                        </div>
+                    </div>
+                `;
+                checkContextLimitNotice();
+            }
+        }
+
+        // Exportar Historial de Conversación (Sin credenciales)
+        function exportChatHistory() {
+            if (conversationHistory.length === 0) {
+                showModal("Historial Vacío", "No hay mensajes guardados en la sesión para exportar.");
+                return;
+            }
+
+            let exportText = `=========================================\n`;
+            exportText += `HISTORIAL DE CONSULTAS - EXPERTO BARISTA\n`;
+            exportText += `Fecha de exportación: ${new Date().toLocaleString()}\n`;
+            exportText += `=========================================\n\n`;
+
+            conversationHistory.forEach((msg, idx) => {
+                const roleName = msg.role === 'user' ? 'USUARIO' : 'EXPERTO BARISTA';
+                exportText += `[${idx + 1}] ${roleName}:\n${msg.content}\n\n-----------------------------------------\n\n`;
+            });
+
+            // Crear archivo ejecutable de descarga de texto
+            const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `experto-barista-historial-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Modal de Alertas
+        function showModal(title, message) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').textContent = message;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+
+        // Helpers Utilitarios
+        function scrollToBottom() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
